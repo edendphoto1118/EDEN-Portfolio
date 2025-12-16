@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 import { WorkItem } from '../types';
-import { Maximize2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import Section from './Section';
 import { EditableTrigger } from './CreatorMode';
-import Fox from './Fox';
 
 interface PhotoGalleryProps {
   items: WorkItem[];
   isCreatorMode: boolean;
-  foxLocation: string | null;
-  isFoxEscaping: boolean;
-  onFoxEscape: () => void;
 }
 
-const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode, foxLocation, isFoxEscaping, onFoxEscape }) => {
+const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<WorkItem | null>(null);
 
   const getColumnItems = (colIndex: number, totalCols: number) => 
@@ -36,16 +32,9 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode, foxLo
             <div key={colIndex} className="flex flex-col gap-6 md:gap-12">
               {getColumnItems(colIndex, 3).map((item, idx) => (
                 <Section key={item.id} delay={idx * 150} className="relative group">
-                   
-                   {/* Fox Logic */}
-                   {foxLocation === item.id && <Fox isEscaping={isFoxEscaping} />}
-
                    <div 
                         className="relative overflow-hidden cursor-zoom-in bg-neutral-900 aspect-[3/4] z-10" 
                         onClick={() => setSelectedPhoto(item)}
-                        onMouseEnter={() => {
-                            if (foxLocation === item.id) onFoxEscape();
-                        }}
                     >
                         {/* Luxurious Image Transition */}
                         <img

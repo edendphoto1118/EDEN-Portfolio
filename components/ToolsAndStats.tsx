@@ -4,14 +4,10 @@ import Section from './Section';
 import { ExternalLink, Code } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { EditableTrigger } from './CreatorMode';
-import Fox from './Fox';
 
 interface ToolsAndStatsProps {
   items: WorkItem[];
   isCreatorMode: boolean;
-  foxLocation: string | null;
-  isFoxEscaping: boolean;
-  onFoxEscape: () => void;
 }
 
 // Custom tooltip for Recharts to match the dark theme
@@ -33,10 +29,7 @@ const ToolCard: React.FC<{
     item: WorkItem; 
     index: number; 
     isCreatorMode: boolean; 
-    foxLocation: string | null;
-    isFoxEscaping: boolean;
-    onFoxEscape: () => void;
-}> = ({ item, index, isCreatorMode, foxLocation, isFoxEscaping, onFoxEscape }) => {
+}> = ({ item, index, isCreatorMode }) => {
     const divRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [opacity, setOpacity] = useState(0);
@@ -54,17 +47,11 @@ const ToolCard: React.FC<{
 
     return (
         <Section delay={index * 150} className="relative group rounded-xl">
-             {/* Fox Logic */}
-             {foxLocation === item.id && <Fox isEscaping={isFoxEscaping} />}
-
              {/* Spotlight Effect Border */}
             <div 
                 ref={divRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
-                onMouseEnter={() => {
-                    if (foxLocation === item.id) onFoxEscape();
-                }}
                 className="bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors rounded-xl overflow-hidden flex flex-col relative h-full z-10"
             >
                 {/* The Radial Gradient Overlay */}
@@ -144,7 +131,7 @@ const ToolCard: React.FC<{
     );
 }
 
-const ToolsAndStats: React.FC<ToolsAndStatsProps> = ({ items, isCreatorMode, foxLocation, isFoxEscaping, onFoxEscape }) => {
+const ToolsAndStats: React.FC<ToolsAndStatsProps> = ({ items, isCreatorMode }) => {
   return (
     <div id="web-tools" className="py-24 bg-neutral-950 relative overflow-hidden">
         {/* Decorative background code */}
@@ -167,9 +154,6 @@ const ToolsAndStats: React.FC<ToolsAndStatsProps> = ({ items, isCreatorMode, fox
                     item={item} 
                     index={idx} 
                     isCreatorMode={isCreatorMode} 
-                    foxLocation={foxLocation}
-                    isFoxEscaping={isFoxEscaping}
-                    onFoxEscape={onFoxEscape}
                 />
             ))}
         </div>

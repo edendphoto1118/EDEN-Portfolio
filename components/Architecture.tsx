@@ -3,17 +3,13 @@ import { WorkItem } from '../types';
 import Section from './Section';
 import { ArrowRight } from 'lucide-react';
 import { EditableTrigger } from './CreatorMode';
-import Fox from './Fox';
 
 interface ArchitectureProps {
   items: WorkItem[];
   isCreatorMode: boolean;
-  foxLocation: string | null;
-  isFoxEscaping: boolean;
-  onFoxEscape: () => void;
 }
 
-const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode, foxLocation, isFoxEscaping, onFoxEscape }) => {
+const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode }) => {
   return (
     <div id="architecture" className="py-24 bg-neutral-900 border-t border-neutral-800">
       <div className="container mx-auto px-6">
@@ -34,13 +30,7 @@ const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode, foxLo
                     {/* Image Area */}
                     <div 
                         className="w-full md:w-3/5 relative aspect-[16/9] bg-neutral-800 group-image-container"
-                        onMouseEnter={() => {
-                            if (foxLocation === item.id) onFoxEscape();
-                        }}
                     >
-                        {/* Fox Logic */}
-                        {foxLocation === item.id && <Fox isEscaping={isFoxEscaping} />}
-
                         <div className="w-full h-full overflow-hidden relative z-10">
                             <img 
                                 src={item.imageUrl} 
