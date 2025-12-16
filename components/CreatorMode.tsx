@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit2, Upload, X, Info, Layout, LogOut, Lock, Plus } from 'lucide-react';
+import { Edit2, Upload, X, Info, Layout, LogOut, Lock, Download, Check } from 'lucide-react';
+import { WorkItem } from '../types';
 
 interface CreatorModeProps {
   enabled: boolean;
   toggle: () => void;
+  currentItems?: WorkItem[];
 }
 
-const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle }) => {
+const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle, currentItems }) => {
   const [showTip, setShowTip] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     // Check for admin flag in URL or LocalStorage
@@ -30,6 +34,36 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle }) => {
     localStorage.removeItem('eden_admin_access');
     setIsAdmin(false);
     if (enabled) toggle(); // Turn off creator mode if it was on
+  };
+
+  const handleExport = () => {
+    if (!currentItems) return;
+    setShowExportModal(true);
+  };
+
+  const generateExportCode = () => {
+    if (!currentItems) return '';
+    
+    // Clean up the items for export (remove huge base64 strings if they exist to prevent crashing)
+    // We replace base64 with a placeholder comment to remind user to move file
+    const cleanItems = currentItems.map(item => {
+        const isBase64 = item.imageUrl.startsWith('data:image');
+        return {
+            ...item,
+            imageUrl: isBase64 ? "REPLACE_WITH_YOUR_IMAGE_PATH" : item.imageUrl
+        };
+    });
+
+    const jsonString = JSON.stringify(cleanItems, null, 2);
+    // Wrap it in the TS export const structure
+    return `export const WORK_ITEMS: WorkItem[] = ${jsonString};`;
+  };
+
+  const copyToClipboard = () => {
+    const code = generateExportCode();
+    navigator.clipboard.writeText(code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
   };
 
   // If not admin, do not render anything (hide the button)
@@ -65,11 +99,19 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle }) => {
             </button>
           </div>
           <p className="text-xs text-neutral-400 mb-4 leading-relaxed">
-            您現在可以看到排版建議與上傳入口。這是僅有您能看見的介面。點擊任何帶有虛線框的區域即可上傳照片進行預覽。
+            點擊畫面上的虛線框即可編輯。完成編輯後，請點擊下方按鈕匯出設定檔。
           </p>
+          
+          <button 
+            onClick={handleExport}
+            className="w-full bg-yellow-600 hover:bg-yellow-500 text-white py-2 rounded text-xs font-bold mb-3 flex items-center justify-center gap-2 transition-colors"
+          >
+            <Download size={14} /> 匯出設定檔 (Export)
+          </button>
+
           <div className="bg-yellow-900/20 p-2 rounded border border-yellow-900/50 mb-3">
              <p className="text-[10px] text-yellow-500">
-                注意：此模式下的更改僅為暫時預覽（瀏覽器端）。若要永久生效，請將照片存入專案目錄或雲端空間。
+                注意：網頁重整後修改會消失。請務必匯出並覆蓋 constants.ts 檔案。
              </p>
           </div>
           
@@ -87,6 +129,39 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle }) => {
           </div>
         </div>
       </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm pointer-events-auto flex items-center justify-center z-[100] p-6">
+            <div className="bg-neutral-900 border border-neutral-700 rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl">
+                <div className="p-6 border-b border-neutral-800 flex justify-between items-center">
+                    <h3 className="text-xl text-white font-serif-display">匯出永久設定 (Export Config)</h3>
+                    <button onClick={() => setShowExportModal(false)} className="text-neutral-500 hover:text-white">
+                        <X size={24} />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1">
+                    <p className="text-neutral-400 text-sm mb-4">
+                        請複製以下程式碼，並完全覆蓋專案中的 <code className="text-yellow-500 bg-neutral-800 px-1 rounded">constants.ts</code> 檔案裡的 <code className="text-yellow-500">WORK_ITEMS</code> 部分。
+                        <br/><br/>
+                        <span className="text-red-400">注意：</span> 如果您有上傳新圖片，請將圖片檔案移動到專案資料夾中，並手動更新程式碼中的 "REPLACE_WITH_YOUR_IMAGE_PATH"。
+                    </p>
+                    <div className="relative">
+                        <pre className="bg-black p-4 rounded text-xs text-green-400 font-mono overflow-auto max-h-64 border border-neutral-800">
+                            {generateExportCode()}
+                        </pre>
+                        <button 
+                            onClick={copyToClipboard}
+                            className="absolute top-2 right-2 bg-white text-black px-3 py-1 text-xs font-bold rounded hover:bg-neutral-200 transition-colors flex items-center gap-1"
+                        >
+                            {copiedCode ? <Check size={12}/> : null}
+                            {copiedCode ? "已複製" : "複製程式碼"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
 
       {/* Example Overlay Tip (Mocking placement) */}
       <div className="absolute top-24 left-1/2 -translate-x-1/2 pointer-events-auto">
