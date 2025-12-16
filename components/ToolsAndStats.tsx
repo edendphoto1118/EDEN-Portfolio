@@ -46,6 +46,11 @@ const ToolCard: React.FC<{
         setOpacity(0);
     };
 
+    // Special title parsing for mixed fonts (English | Stylish Chinese)
+    const [mainTitle, subTitle] = item.title.includes('|') 
+        ? item.title.split('|').map(s => s.trim()) 
+        : [item.title, null];
+
     return (
         <Section delay={index * 150} className="relative group rounded-xl">
              {/* Spotlight Effect Border - Converted to Anchor Tag for Full Clickability */}
@@ -82,8 +87,17 @@ const ToolCard: React.FC<{
 
                 <div className="p-8 flex-1 flex flex-col relative z-20">
                     <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-2xl text-white font-medium group-hover:text-yellow-500 transition-colors">{item.title}</h3>
-                        <div className="text-neutral-500 group-hover:text-white transition-colors">
+                        <div className="flex flex-col">
+                            <h3 className="text-2xl text-white font-medium group-hover:text-yellow-500 transition-colors">
+                                {mainTitle}
+                            </h3>
+                            {subTitle && (
+                                <span className="text-lg text-yellow-500/90 font-sans-tw font-bold tracking-[0.2em] mt-1 drop-shadow-sm uppercase">
+                                    {subTitle}
+                                </span>
+                            )}
+                        </div>
+                        <div className="text-neutral-500 group-hover:text-white transition-colors pt-1">
                             <ExternalLink size={20} />
                         </div>
                     </div>

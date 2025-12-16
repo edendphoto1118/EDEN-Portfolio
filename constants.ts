@@ -1,3 +1,4 @@
+
 import { WorkItem, SiteConfig } from './types';
 
 export const SITE_CONFIG: SiteConfig = {
@@ -7,8 +8,7 @@ export const SITE_CONFIG: SiteConfig = {
   contactEmail: "edendphoto1118@gmail.com",
   socialLinks: {
     instagram: "https://instagram.com/eden_d_photo",
-    linkedin: "#",
-    github: "#"
+    threads: "https://www.threads.net/@eden_d_photo"
   }
 };
 
@@ -92,11 +92,11 @@ export const WORK_ITEMS: WorkItem[] = [
   // Web Tools
   {
     id: 'w1',
-    title: 'Vibe Check',
+    title: 'Vibe Check | 氣氛博士',
     category: 'web',
     imageUrl: 'https://images.unsplash.com/photo-1557180295-76eee20ae8aa?q=80&w=1600&auto=format&fit=crop', // Dark neon party vibe
     date: '2024.03',
-    description: '極致的派對互動體驗。透過即時音訊分析與視覺回饋，將現場氛圍轉化為沈浸式的數位藝術。',
+    description: '派對互動遊戲 拒絕尷尬｜派對昇華。',
     tags: ['React', 'Vibe', 'Music API'],
     link: 'https://vibe-check-ih3e.vercel.app/',
     stats: [

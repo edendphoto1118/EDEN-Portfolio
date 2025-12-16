@@ -1,3 +1,4 @@
+
 export type Category = 'photography' | 'architecture' | 'web';
 
 export interface WorkItem {
@@ -24,7 +25,6 @@ export interface SiteConfig {
   contactEmail: string;
   socialLinks: {
     instagram?: string;
-    linkedin?: string;
-    github?: string;
+    threads?: string;
   };
 }

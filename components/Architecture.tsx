@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { WorkItem } from '../types';
 import Section from './Section';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { EditableTrigger } from './CreatorMode';
 
 interface ArchitectureProps {
   items: WorkItem[];
   isCreatorMode: boolean;
+  onUpdateImage: (id: string, file: File) => void;
+  onAddNew: () => void;
 }
 
-const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode }) => {
+const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode, onUpdateImage, onAddNew }) => {
+  // Load More Logic: Default show 3 items
+  const [visibleCount, setVisibleCount] = useState(3);
+  const visibleItems = items.slice(0, visibleCount);
+  const hasMore = visibleCount < items.length;
+
   return (
     <div id="architecture" className="py-24 bg-neutral-900 border-t border-neutral-800">
       <div className="container mx-auto px-6">
@@ -24,8 +31,8 @@ const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode }) => 
             <span className="text-neutral-600 font-mono">02 / WORKS</span>
          </Section>
 
-         <div className="flex flex-col gap-32">
-            {items.map((item, index) => (
+         <div className="flex flex-col gap-32 mb-20">
+            {visibleItems.map((item, index) => (
                 <Section key={item.id} className={`flex flex-col ${index % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} gap-8 md:gap-16 items-center group`}>
                     {/* Image Area */}
                     <div 
@@ -37,7 +44,13 @@ const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode }) => 
                                 alt={item.title}
                                 className="w-full h-full object-cover transition-all duration-1000 ease-out group-hover:scale-105 filter grayscale group-hover:grayscale-0 brightness-90 group-hover:brightness-100"
                             />
-                             <EditableTrigger isCreatorMode={isCreatorMode} label="更換建築渲染圖" className="z-10"/>
+                             <EditableTrigger 
+                                isCreatorMode={isCreatorMode} 
+                                label="更換建築渲染圖" 
+                                className="z-10"
+                                aspectRatio="16:9"
+                                onFileSelect={(file) => onUpdateImage(item.id, file)}
+                             />
                              
                              {/* Overlay info for mobile mainly, minimal on desktop */}
                              <div className="absolute inset-0 border border-white/5 pointer-events-none"></div>
@@ -71,7 +84,33 @@ const Architecture: React.FC<ArchitectureProps> = ({ items, isCreatorMode }) => 
                     </div>
                 </Section>
             ))}
+            
+            {/* Add New Section */}
+            {isCreatorMode && (
+                <div onClick={onAddNew} className="w-full border-2 border-dashed border-neutral-800 hover:border-yellow-500/50 rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer group transition-colors">
+                    <div className="bg-neutral-800 p-4 rounded-full mb-4 group-hover:bg-yellow-500/20 transition-colors">
+                        <Plus size={32} className="text-neutral-400 group-hover:text-yellow-500" />
+                    </div>
+                    <span className="text-neutral-500 font-mono tracking-widest uppercase group-hover:text-yellow-500">Add Architecture Project</span>
+                </div>
+            )}
          </div>
+
+         {/* Load More Button */}
+        {items.length > 3 && (
+            <div className="flex justify-center">
+                <button 
+                    onClick={() => setVisibleCount(hasMore ? visibleCount + 3 : 3)}
+                    className="flex items-center gap-2 px-8 py-3 border border-neutral-800 hover:border-white text-neutral-400 hover:text-white transition-all duration-300 font-mono text-xs tracking-widest uppercase rounded-full hover:bg-white/5"
+                >
+                    {hasMore ? (
+                        <>Load More <ChevronDown size={14} /></>
+                    ) : (
+                        <>Show Less <ChevronUp size={14} /></>
+                    )}
+                </button>
+            </div>
+        )}
       </div>
     </div>
   );

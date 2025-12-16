@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import { WorkItem } from '../types';
-import { X } from 'lucide-react';
+import { X, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import Section from './Section';
 import { EditableTrigger } from './CreatorMode';
 
 interface PhotoGalleryProps {
   items: WorkItem[];
   isCreatorMode: boolean;
+  onUpdateImage: (id: string, file: File) => void;
+  onAddNew: () => void;
 }
 
-const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode }) => {
+const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode, onUpdateImage, onAddNew }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<WorkItem | null>(null);
+  
+  // Load More Logic: Default show 6 items
+  const [visibleCount, setVisibleCount] = useState(6);
+  const visibleItems = items.slice(0, visibleCount);
+  const hasMore = visibleCount < items.length;
 
+  // Helper for masonry layout
   const getColumnItems = (colIndex: number, totalCols: number) => 
-    items.filter((_, idx) => idx % totalCols === colIndex);
+    visibleItems.filter((_, idx) => idx % totalCols === colIndex);
 
   return (
     <div id="photography" className="py-24 bg-[#0a0a0a] min-h-screen relative">
@@ -27,7 +35,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode }) => 
         </Section>
 
         {/* Masonry Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12 mb-12">
           {[0, 1, 2].map((colIndex) => (
             <div key={colIndex} className="flex flex-col gap-6 md:gap-12">
               {getColumnItems(colIndex, 3).map((item, idx) => (
@@ -53,13 +61,44 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ items, isCreatorMode }) => 
                             <h3 className="text-white text-2xl font-serif-display italic tracking-wide">{item.title}</h3>
                         </div>
                         
-                        <EditableTrigger isCreatorMode={isCreatorMode} label="更換作品圖片" />
+                        <EditableTrigger 
+                            isCreatorMode={isCreatorMode} 
+                            label="更換作品圖片" 
+                            aspectRatio="3:4"
+                            onFileSelect={(file) => onUpdateImage(item.id, file)}
+                        />
                     </div>
                 </Section>
               ))}
             </div>
           ))}
+          
+          {/* Add New Button (Only in Creator Mode, Appended to the grid visually or at the end) */}
+          {isCreatorMode && (
+             <div className="flex items-center justify-center aspect-[3/4] border-2 border-dashed border-yellow-500/30 rounded-lg hover:bg-yellow-500/5 transition-colors cursor-pointer group" onClick={onAddNew}>
+                 <div className="flex flex-col items-center gap-3 text-yellow-500/50 group-hover:text-yellow-500 transition-colors">
+                     <Plus size={40} strokeWidth={1} />
+                     <span className="font-mono text-xs tracking-widest uppercase">Add New Work</span>
+                 </div>
+             </div>
+          )}
         </div>
+
+        {/* Load More Button */}
+        {items.length > 6 && (
+            <div className="flex justify-center mt-12">
+                <button 
+                    onClick={() => setVisibleCount(hasMore ? visibleCount + 6 : 6)}
+                    className="flex items-center gap-2 px-8 py-3 border border-neutral-800 hover:border-white text-neutral-400 hover:text-white transition-all duration-300 font-mono text-xs tracking-widest uppercase rounded-full hover:bg-white/5"
+                >
+                    {hasMore ? (
+                        <>Load More <ChevronDown size={14} /></>
+                    ) : (
+                        <>Show Less <ChevronUp size={14} /></>
+                    )}
+                </button>
+            </div>
+        )}
       </div>
 
       {/* Lightbox */}

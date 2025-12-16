@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Edit2, Upload, X, Info, Layout, LogOut, Lock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Edit2, Upload, X, Info, Layout, LogOut, Lock, Plus } from 'lucide-react';
 
 interface CreatorModeProps {
   enabled: boolean;
@@ -65,15 +65,12 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle }) => {
             </button>
           </div>
           <p className="text-xs text-neutral-400 mb-4 leading-relaxed">
-            您現在可以看到排版建議與上傳入口。這是僅有您能看見的介面。點擊任何帶有虛線框的區域即可模擬上傳。
+            您現在可以看到排版建議與上傳入口。這是僅有您能看見的介面。點擊任何帶有虛線框的區域即可上傳照片進行預覽。
           </p>
-          <div className="flex gap-2 mb-3">
-            <button className="flex-1 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-500 text-xs py-2 px-3 rounded border border-yellow-600/30 transition-colors flex items-center justify-center gap-2">
-              <Upload size={14} /> 新增作品
-            </button>
-            <button className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs py-2 px-3 rounded border border-neutral-700 transition-colors">
-              管理數據
-            </button>
+          <div className="bg-yellow-900/20 p-2 rounded border border-yellow-900/50 mb-3">
+             <p className="text-[10px] text-yellow-500">
+                注意：此模式下的更改僅為暫時預覽（瀏覽器端）。若要永久生效，請將照片存入專案目錄或雲端空間。
+             </p>
           </div>
           
           {/* Admin Logout */}
@@ -112,26 +109,54 @@ const CreatorMode: React.FC<CreatorModeProps> = ({ enabled, toggle }) => {
   );
 };
 
+// Reusable Editable Trigger Component with File Input
 export const EditableTrigger: React.FC<{ 
     isCreatorMode: boolean; 
     label?: string; 
     className?: string;
-    onUpload?: () => void;
-}> = ({ isCreatorMode, label = "更換圖片", className = "", onUpload }) => {
+    onFileSelect?: (file: File) => void;
+    aspectRatio?: string;
+}> = ({ isCreatorMode, label = "更換圖片", className = "", onFileSelect, aspectRatio }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
     if (!isCreatorMode) return null;
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (inputRef.current) {
+            inputRef.current.click();
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && onFileSelect) {
+            onFileSelect(file);
+        }
+    };
 
     return (
         <div 
-            onClick={(e) => {
-                e.stopPropagation();
-                if(onUpload) onUpload();
-                else alert(`模擬上傳流程：\n在此處開啟檔案選擇器，將圖片上傳至雲端存儲 (AWS S3/Cloudinary)，並更新 constants.ts 中的 URL。`);
-            }}
-            className={`absolute inset-0 bg-yellow-500/10 border-2 border-dashed border-yellow-500/40 z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer group ${className}`}
+            onClick={handleClick}
+            className={`absolute inset-0 bg-yellow-500/10 border-2 border-dashed border-yellow-500/40 z-20 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer group ${className}`}
         >
-            <div className="bg-black/80 text-yellow-500 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 transform group-hover:scale-105 transition-transform backdrop-blur-md border border-yellow-500/30">
+            <input 
+                type="file" 
+                ref={inputRef}
+                className="hidden" 
+                accept="image/*"
+                onChange={handleFileChange}
+                onClick={(e) => e.stopPropagation()} // Prevent bubbling up
+            />
+            <div className="bg-black/80 text-yellow-500 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 transform group-hover:scale-105 transition-transform backdrop-blur-md border border-yellow-500/30 shadow-xl">
                 <Upload size={14} /> {label}
             </div>
+            {aspectRatio && (
+                <span className="mt-2 text-[10px] font-mono bg-black/50 px-2 py-0.5 rounded text-neutral-300 border border-white/10">
+                    建議比例 {aspectRatio}
+                </span>
+            )}
         </div>
     );
 };

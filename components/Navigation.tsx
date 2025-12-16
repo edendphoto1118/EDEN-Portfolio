@@ -42,19 +42,33 @@ const Navigation: React.FC = () => {
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
           <style>{`
-            @keyframes breathe-calm {
-              0%, 100% { opacity: 0.85; text-shadow: 0 0 0px rgba(234, 179, 8, 0); transform: scale(1); }
-              50% { opacity: 1; text-shadow: 0 0 12px rgba(234, 179, 8, 0.3); transform: scale(1.02); }
+            @keyframes breathe-silver {
+              0%, 100% { 
+                text-shadow: 
+                  0 0 10px rgba(255, 255, 255, 0.4), 
+                  0 0 20px rgba(255, 255, 255, 0.2);
+                opacity: 0.9;
+                color: #e5e5e5;
+              }
+              50% { 
+                text-shadow: 
+                  0 0 20px rgba(255, 255, 255, 1), 
+                  0 0 40px rgba(255, 255, 255, 0.8),
+                  0 0 60px rgba(200, 220, 255, 0.6);
+                opacity: 1;
+                color: #ffffff;
+              }
             }
             .animate-breathe {
-              animation: breathe-calm 6s ease-in-out infinite;
+              animation: breathe-silver 4s ease-in-out infinite;
             }
           `}</style>
           
           <a 
-            href="#" 
-            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="text-2xl font-cinzel tracking-widest text-white z-50 relative transition-colors animate-breathe"
+            href="https://instagram.com/eden_d_photo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-2xl font-cinzel tracking-widest text-white z-50 relative transition-all animate-breathe hover:scale-105 duration-300"
           >
             EDEN
           </a>

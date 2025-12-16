@@ -11,13 +11,20 @@ const Footer: React.FC<{ config: SiteConfig }> = ({ config }) => {
         </div>
         
         <div className="flex flex-col items-center md:items-end gap-2">
-            <a href={`mailto:${config.contactEmail}`} className="text-xl text-neutral-300 hover:text-white hover:underline decoration-1 underline-offset-4 font-serif-display">
+            <a href={`mailto:${config.contactEmail}`} className="text-xl text-neutral-300 hover:text-white hover:underline decoration-1 underline-offset-4 font-serif-display transition-colors">
                 {config.contactEmail}
             </a>
             <div className="flex gap-6 mt-2">
-                <a href="#" className="text-neutral-600 hover:text-white uppercase text-xs tracking-widest">Instagram</a>
-                <a href="#" className="text-neutral-600 hover:text-white uppercase text-xs tracking-widest">LinkedIn</a>
-                <a href="#" className="text-neutral-600 hover:text-white uppercase text-xs tracking-widest">GitHub</a>
+                {config.socialLinks.instagram && (
+                    <a href={config.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-neutral-600 hover:text-white uppercase text-xs tracking-widest transition-colors">
+                        Instagram
+                    </a>
+                )}
+                {config.socialLinks.threads && (
+                    <a href={config.socialLinks.threads} target="_blank" rel="noopener noreferrer" className="text-neutral-600 hover:text-white uppercase text-xs tracking-widest transition-colors">
+                        Threads
+                    </a>
+                )}
             </div>
         </div>
       </div>
