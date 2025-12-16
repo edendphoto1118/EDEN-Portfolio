@@ -99,11 +99,7 @@ export const WORK_ITEMS: WorkItem[] = [
     description: '派對互動遊戲 拒絕尷尬｜派對昇華。',
     tags: ['React', 'Vibe', 'Music API'],
     link: 'https://vibe-check-ih3e.vercel.app/',
-    stats: [
-      { label: 'Rhythm', value: 98 },
-      { label: 'Energy', value: 100 },
-      { label: 'Visuals', value: 95 }
-    ]
+    initialViews: 1240
   },
   {
     id: 'w2',
@@ -114,10 +110,6 @@ export const WORK_ITEMS: WorkItem[] = [
     description: '基於 AI 的影像色彩分析與配色建議工具。',
     tags: ['AI', 'Utility', 'Design'],
     link: 'https://github.com',
-     stats: [
-      { label: 'Accuracy', value: 92 },
-      { label: 'Speed (ms)', value: 120 },
-      { label: 'Users', value: 85 }
-    ]
+    initialViews: 856
   }
 ];

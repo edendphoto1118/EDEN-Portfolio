@@ -10,7 +10,7 @@ export interface WorkItem {
   description?: string;
   tags?: string[];
   link?: string; // For web tools or external links
-  stats?: { label: string; value: number }[]; // For charts
+  initialViews?: number; // Base number for the "Users" count
 }
 
 export interface CreatorTip {

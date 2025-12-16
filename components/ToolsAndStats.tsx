@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { WorkItem } from '../types';
 import Section from './Section';
-import { ExternalLink, Code } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { ExternalLink, Code, Users, TrendingUp } from 'lucide-react';
 import { EditableTrigger } from './CreatorMode';
 
 interface ToolsAndStatsProps {
@@ -10,30 +9,28 @@ interface ToolsAndStatsProps {
   isCreatorMode: boolean;
 }
 
-// Custom tooltip for Recharts to match the dark theme
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-neutral-900 border border-neutral-700 p-3 shadow-xl z-50">
-        <p className="text-neutral-200 font-mono text-xs mb-1">{label}</p>
-        <p className="text-yellow-500 font-bold text-sm">
-          {payload[0].value} <span className="text-[10px] font-normal text-neutral-500">SCORE</span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
 const ToolCard: React.FC<{ 
     item: WorkItem; 
     index: number; 
     isCreatorMode: boolean; 
 }> = ({ item, index, isCreatorMode }) => {
-    // Changed Ref type to HTMLAnchorElement since the container is now an <a> tag
     const cardRef = useRef<HTMLAnchorElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [opacity, setOpacity] = useState(0);
+    const [userCount, setUserCount] = useState(0);
+
+    // Initialize View Count logic
+    useEffect(() => {
+        const storageKey = `eden_tool_clicks_${item.id}`;
+        const savedClicks = parseInt(localStorage.getItem(storageKey) || '0', 10);
+        
+        // Base count + (Real clicks * 3)
+        // We use initialViews from constants as a base to make it look active
+        const baseCount = item.initialViews || 500;
+        const totalUsers = baseCount + (savedClicks * 3);
+        
+        setUserCount(totalUsers);
+    }, [item.id, item.initialViews]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
         if (!cardRef.current) return;
@@ -44,6 +41,18 @@ const ToolCard: React.FC<{
 
     const handleMouseLeave = () => {
         setOpacity(0);
+    };
+
+    const handleClick = () => {
+        // Increment click count in local storage
+        const storageKey = `eden_tool_clicks_${item.id}`;
+        const currentClicks = parseInt(localStorage.getItem(storageKey) || '0', 10);
+        const newClicks = currentClicks + 1;
+        localStorage.setItem(storageKey, newClicks.toString());
+        
+        // Update local state immediately for visual feedback (though user is navigating away)
+        const baseCount = item.initialViews || 500;
+        setUserCount(baseCount + (newClicks * 3));
     };
 
     // Special title parsing for mixed fonts (English | Stylish Chinese)
@@ -59,6 +68,7 @@ const ToolCard: React.FC<{
                 target="_blank"
                 rel="noreferrer"
                 ref={cardRef}
+                onClick={handleClick}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 className="bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors rounded-xl overflow-hidden flex flex-col relative h-full z-10 cursor-pointer block"
@@ -105,37 +115,20 @@ const ToolCard: React.FC<{
                         {item.description}
                     </p>
                     
-                    {/* Data Viz for this tool */}
-                    {item.stats && (
-                        <div className="h-32 w-full mt-4 bg-black/40 border border-white/5 rounded-lg p-2 relative">
-                            {isCreatorMode && (
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                    <span className="text-[10px] text-yellow-600/50 bg-black/50 px-2 rounded">
-                                        Recharts Visualization
-                                    </span>
-                                </div>
-                            )}
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={item.stats} layout="vertical" barSize={8}>
-                                    <XAxis type="number" hide />
-                                    <YAxis 
-                                        dataKey="label" 
-                                        type="category" 
-                                        width={80} 
-                                        tick={{fill: '#888', fontSize: 10, fontFamily: 'monospace'}} 
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
-                                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                                        {item.stats.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#525252' : '#737373'} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    )}
+                    {/* Simplified Stats Display: Users Only */}
+                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                         <div className="flex items-center gap-2 text-yellow-500">
+                            <Users size={16} />
+                            <span className="font-mono text-xl font-bold">{userCount.toLocaleString()}</span>
+                            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-sans-tw">使用人數</span>
+                         </div>
+                         
+                         {/* Fake "trending" indicator */}
+                         <div className="flex items-center gap-1 text-green-500/50 text-[10px]">
+                            <TrendingUp size={12} />
+                            <span>Active</span>
+                         </div>
+                    </div>
                     
                     <div className="mt-6 flex gap-3">
                             {item.tags?.map(tag => (
