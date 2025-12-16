@@ -30,13 +30,14 @@ const ToolCard: React.FC<{
     index: number; 
     isCreatorMode: boolean; 
 }> = ({ item, index, isCreatorMode }) => {
-    const divRef = useRef<HTMLDivElement>(null);
+    // Changed Ref type to HTMLAnchorElement since the container is now an <a> tag
+    const cardRef = useRef<HTMLAnchorElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [opacity, setOpacity] = useState(0);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!divRef.current) return;
-        const rect = divRef.current.getBoundingClientRect();
+    const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (!cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
         setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
         setOpacity(1);
     };
@@ -47,12 +48,15 @@ const ToolCard: React.FC<{
 
     return (
         <Section delay={index * 150} className="relative group rounded-xl">
-             {/* Spotlight Effect Border */}
-            <div 
-                ref={divRef}
+             {/* Spotlight Effect Border - Converted to Anchor Tag for Full Clickability */}
+            <a 
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                ref={cardRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
-                className="bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors rounded-xl overflow-hidden flex flex-col relative h-full z-10"
+                className="bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors rounded-xl overflow-hidden flex flex-col relative h-full z-10 cursor-pointer block"
             >
                 {/* The Radial Gradient Overlay */}
                 <div 
@@ -64,7 +68,7 @@ const ToolCard: React.FC<{
                 />
 
                 <div className="h-48 overflow-hidden relative border-b border-neutral-800">
-                        <img 
+                    <img 
                         src={item.imageUrl} 
                         alt={item.title} 
                         className="w-full h-full object-cover opacity-60 filter grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-105"
@@ -72,15 +76,16 @@ const ToolCard: React.FC<{
                     <div className="absolute top-4 right-4 bg-black/80 backdrop-blur text-white p-2 rounded-lg z-20">
                         <Code size={20} />
                     </div>
+                    {/* EditableTrigger has e.stopPropagation() so it won't trigger the link */}
                     <EditableTrigger isCreatorMode={isCreatorMode} label="更新工具截圖" />
                 </div>
 
                 <div className="p-8 flex-1 flex flex-col relative z-20">
                     <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-2xl text-white font-medium">{item.title}</h3>
-                        <a href={item.link} target="_blank" rel="noreferrer" className="text-neutral-500 hover:text-white transition-colors">
+                        <h3 className="text-2xl text-white font-medium group-hover:text-yellow-500 transition-colors">{item.title}</h3>
+                        <div className="text-neutral-500 group-hover:text-white transition-colors">
                             <ExternalLink size={20} />
-                        </a>
+                        </div>
                     </div>
                     <p className="text-neutral-400 mb-6 text-sm leading-relaxed flex-1">
                         {item.description}
@@ -126,7 +131,7 @@ const ToolCard: React.FC<{
                         ))}
                     </div>
                 </div>
-            </div>
+            </a>
         </Section>
     );
 }

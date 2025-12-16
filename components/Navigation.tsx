@@ -41,10 +41,20 @@ const Navigation: React.FC = () => {
         }`}
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
+          <style>{`
+            @keyframes breathe-calm {
+              0%, 100% { opacity: 0.85; text-shadow: 0 0 0px rgba(234, 179, 8, 0); transform: scale(1); }
+              50% { opacity: 1; text-shadow: 0 0 12px rgba(234, 179, 8, 0.3); transform: scale(1.02); }
+            }
+            .animate-breathe {
+              animation: breathe-calm 6s ease-in-out infinite;
+            }
+          `}</style>
+          
           <a 
             href="#" 
             onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="text-2xl font-cinzel tracking-widest text-white z-50 relative hover:text-yellow-500 transition-colors"
+            className="text-2xl font-cinzel tracking-widest text-white z-50 relative transition-colors animate-breathe"
           >
             EDEN
           </a>
